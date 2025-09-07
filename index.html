@@ -11,12 +11,11 @@
 <body>
     <!-- VR Scene -->
     <a-scene 
-        id="museum-scene" 
-        background="color: #f8f8f8" 
-        vr-mode-ui="enabled: true" 
-        device-orientation-permission-ui="enabled: true"
-        embedded
-        style="height: 100vh; width: 100vw;">
+    id="museum-scene" 
+    background="color: #f8f8f8" 
+    vr-mode-ui="enabled: true" 
+    device-orientation-permission-ui="enabled: true"
+    style="height: 100vh; width: 100vw;">
         
         <!-- Assets -->
         <a-assets>
@@ -210,7 +209,23 @@
         <div class="loading-spinner"></div>
         <p>Loading Museum Gallery...</p>
     </div>
+    <button id="enter-vr-btn" class="btn btn--primary" style="position:fixed;right:12px;bottom:12px;z-index:9999;">
+  Enter VR
+</button>
 
     <script src="app.js"></script>
+    <script>
+  document.getElementById('enter-vr-btn').addEventListener('click', async () => {
+    const sceneEl = document.querySelector('a-scene');
+    if (!sceneEl) return alert('Scene not found');
+    // enterVR() returns a Promise on some platforms
+    try {
+      sceneEl.enterVR();
+    } catch (err) {
+      console.error('enterVR failed:', err);
+      alert('Could not enter VR — check console for details.');
+    }
+  });
+</script>
 </body>
 </html>
