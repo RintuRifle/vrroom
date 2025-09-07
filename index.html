@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VR Museum Gallery - Explore Art in Virtual Reality</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+</head>
+<body>
+    <!-- VR Scene -->
+    <a-scene 
+        id="museum-scene" 
+        background="color: #f8f8f8" 
+        vr-mode-ui="enabled: true" 
+        device-orientation-permission-ui="enabled: true"
+        embedded
+        style="height: 100vh; width: 100vw;">
+        
+        <!-- Assets -->
+        <a-assets>
+            <!-- Textures -->
+            <img id="wood-texture" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23d4a574'/%3E%3Cpath d='M0 20h100M0 40h100M0 60h100M0 80h100' stroke='%23c19660' stroke-width='1' opacity='0.3'/%3E%3C/svg%3E">
+        </a-assets>
+
+        <!-- Lighting -->
+        <a-light type="ambient" color="#ffffff" intensity="0.4"></a-light>
+        <a-light type="directional" position="5 8 5" color="#ffffff" intensity="0.6"></a-light>
+        
+        <!-- Spotlights for artworks -->
+        <a-light type="spot" position="0 3.5 -6" angle="30" intensity="0.8" color="#fff8dc"></a-light>
+        <a-light type="spot" position="8 3.5 0" angle="30" intensity="0.8" color="#fff8dc"></a-light>
+        <a-light type="spot" position="0 3.5 6" angle="30" intensity="0.8" color="#fff8dc"></a-light>
+        <a-light type="spot" position="-8 3.5 0" angle="30" intensity="0.8" color="#fff8dc"></a-light>
+
+        <!-- Museum Room Structure -->
+        
+        <!-- Floor -->
+        <a-plane id="museum-floor"
+                 position="0 0 0" 
+                 rotation="-90 0 0" 
+                 width="20" 
+                 height="15" 
+                 color="#d4a574" 
+                 material="src: #wood-texture; repeat: 4 3; roughness: 0.8"></a-plane>
+        
+        <!-- Walls with higher visibility -->
+        <a-plane id="north-wall" 
+                 position="0 2 -7.5" 
+                 width="20" 
+                 height="4" 
+                 color="#f8f8f8"
+                 material="roughness: 0.9; opacity: 1; transparent: false"></a-plane>
+        
+        <a-plane id="south-wall" 
+                 position="0 2 7.5" 
+                 rotation="0 180 0"
+                 width="20" 
+                 height="4" 
+                 color="#f8f8f8"
+                 material="roughness: 0.9; opacity: 1; transparent: false"></a-plane>
+        
+        <a-plane id="east-wall" 
+                 position="10 2 0" 
+                 rotation="0 -90 0"
+                 width="15" 
+                 height="4" 
+                 color="#f8f8f8"
+                 material="roughness: 0.9; opacity: 1; transparent: false"></a-plane>
+        
+        <a-plane id="west-wall" 
+                 position="-10 2 0" 
+                 rotation="0 90 0"
+                 width="15" 
+                 height="4" 
+                 color="#f8f8f8"
+                 material="roughness: 0.9; opacity: 1; transparent: false"></a-plane>
+        
+        <!-- Ceiling -->
+        <a-plane position="0 4 0" 
+                 rotation="90 0 0" 
+                 width="20" 
+                 height="15" 
+                 color="#ffffff"
+                 material="roughness: 0.8; opacity: 1; transparent: false"></a-plane>
+
+        <!-- Camera with look controls -->
+        <a-camera 
+            id="main-camera"
+            position="0 1.6 0" 
+            look-controls="enabled: true; pointerLockEnabled: false" 
+            wasd-controls="enabled: true; acceleration: 20"
+            cursor="fuse: true; fuseTimeout: 1500"
+            raycaster="objects: .interactive; far: 20">
+            
+            <!-- Cursor for interaction -->
+            <a-cursor 
+                id="main-cursor"
+                animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
+                animation__fusing="property: scale; startEvents: fusing; from: 1 1 1; to: 0.1 0.1 0.1; dur: 1500"
+                geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
+                material="color: #32a085; shader: flat"
+                position="0 0 -1">
+            </a-cursor>
+        </a-camera>
+
+        <!-- Artworks Container -->
+        <a-entity id="artworks-container">
+            <!-- Artworks will be dynamically created by JavaScript -->
+        </a-entity>
+
+        <!-- Welcome Panel -->
+        <a-entity 
+            id="welcome-panel"
+            position="0 2.5 -2"
+            visible="true">
+            <a-plane 
+                width="4" 
+                height="1.5" 
+                color="#2d3748" 
+                opacity="0.8"
+                material="transparent: true">
+            </a-plane>
+            <a-text 
+                value="Welcome to VR Museum Gallery&#10;Look around to explore masterpieces&#10;Gaze at artworks to learn more"
+                position="0 0.2 0.01"
+                align="center"
+                color="#32a085"
+                width="8"
+                font="roboto">
+            </a-text>
+            <a-text 
+                value="Use VR headset for full immersion"
+                position="0 -0.3 0.01"
+                align="center"
+                color="#ffffff"
+                width="6"
+                font="roboto">
+            </a-text>
+        </a-entity>
+
+        <!-- Description Panel -->
+        <a-entity 
+            id="description-panel"
+            position="0 1 -2.5"
+            visible="false">
+            <a-plane 
+                width="3.5" 
+                height="2" 
+                color="#2d3748" 
+                opacity="0.95"
+                material="transparent: true">
+            </a-plane>
+            <a-text 
+                id="artwork-title"
+                value=""
+                position="0 0.6 0.01"
+                align="center"
+                color="#32a085"
+                width="8"
+                font="roboto">
+            </a-text>
+            <a-text 
+                id="artwork-info"
+                value=""
+                position="0 0.2 0.01"
+                align="center"
+                color="#ffffff"
+                width="6"
+                font="roboto">
+            </a-text>
+            <a-text 
+                id="artwork-description"
+                value=""
+                position="0 -0.4 0.01"
+                align="center"
+                color="#e2e8f0"
+                width="7"
+                font="roboto">
+            </a-text>
+        </a-entity>
+    </a-scene>
+
+    <!-- UI Overlay -->
+    <div id="ui-overlay">
+        <div class="info-card">
+            <h2>VR Museum Gallery</h2>
+            <p>Step into a virtual museum and explore famous artworks from around the world. Each piece comes with detailed descriptions and historical context.</p>
+            <div class="controls-info">
+                <h3>How to Explore:</h3>
+                <ul>
+                    <li><strong>Mobile:</strong> Move your device to look around the gallery</li>
+                    <li><strong>Desktop:</strong> Click and drag to rotate your view</li>
+                    <li><strong>VR Headset:</strong> Click "Enter VR" for full immersion</li>
+                    <li><strong>Interaction:</strong> Gaze at artworks to see descriptions</li>
+                    <li><strong>Movement:</strong> Use WASD keys (desktop) to walk around</li>
+                </ul>
+            </div>
+            <button 
+                id="enter-gallery-btn" 
+                class="btn btn--primary"
+                type="button"
+                onclick="window.startGalleryExperience()">Enter Gallery</button>
+        </div>
+    </div>
+
+    <!-- Loading indicator -->
+    <div id="loading-overlay" class="hidden">
+        <div class="loading-spinner"></div>
+        <p>Loading Museum Gallery...</p>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
